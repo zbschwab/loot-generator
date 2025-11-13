@@ -1,12 +1,12 @@
 # Project: Loot Generator
 
-Authors: (_TODO: fill in names here!_)
+Authors: Z Schwab
 
 ## Resources
 
-*   (_TODO: fill in resources here!_)
-*   ...
-*   ...
+ *  Starting code and instructions from CSC207 [course site](https://osera.cs.grinnell.edu/ttap/data-structures-labs/loot-generator.html) taught by PM Osera
+ *  Compiled with openjdk 21.0.8
+ *  Written in the Java programming language
 
 ## Revision Log
 
