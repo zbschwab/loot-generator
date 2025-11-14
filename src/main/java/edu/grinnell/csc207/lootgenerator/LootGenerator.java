@@ -113,6 +113,31 @@ public class LootGenerator {
         }
     }
 
+    private final ArrayList<Monster> monsters;
+    private final HashMap<String, TreasureClass> TCmap;
+    private final HashMap<String, BaseItem> baseMap;
+    private final ArrayList<Prefix> prefixes;
+    private final ArrayList<Suffix> suffixes;
+
+    /**
+     * load all game data sets
+     * 
+     * @throws FileNotFoundException if any file is missing
+     */
+    public LootGenerator() throws FileNotFoundException {
+        monsters = loadMonsters(DATA_SET + "/monstats.txt");
+        TCmap = loadTCs(DATA_SET + "/TreasureClassEx.txt");
+        baseMap = loadBaseMap(DATA_SET + "/armor.txt");
+        prefixes = loadPrefixes(DATA_SET + "/MagicPrefix.txt");
+        suffixes = loadSuffixes(DATA_SET + "/MagicSuffix.txt");
+    }
+
+    public Monster pickMonster(ArrayList<Monster> monsters) {
+        return monsters.get(rand.nextInt(monsters.size()));
+    }
+
+    private final Random rand = new Random();
+
     /**
      * load monsters from tab-delimited file
      * 
@@ -232,31 +257,6 @@ public class LootGenerator {
         return suffixes;
     }
 
-    private ArrayList<Monster> monsters;
-    private HashMap<String, TreasureClass> TCmap;
-    private HashMap<String, BaseItem> baseMap;
-    private ArrayList<Prefix> prefixes;
-    private ArrayList<Suffix> suffixes;
-
-    private final Random rand = new Random();
-
-    /**
-     * load all game data sets
-     * 
-     * @throws FileNotFoundException if any file is missing
-     */
-    public LootGenerator() throws FileNotFoundException {
-        monsters = loadMonsters(DATA_SET + "/monstats.txt");
-        TCmap = loadTCs(DATA_SET + "/TreasureClassEx.txt");
-        baseMap = loadBaseMap(DATA_SET + "/armor.txt");
-        prefixes = loadPrefixes(DATA_SET + "/MagicPrefix.txt");
-        suffixes = loadSuffixes(DATA_SET + "/MagicSuffix.txt");
-    }
-
-    public Monster pickMonster(ArrayList<Monster> monsters) {
-        return monsters.get(rand.nextInt(monsters.size()));
-    }
-
     /**
      * looks up TC associated with monster until base item found
      * 
@@ -266,8 +266,6 @@ public class LootGenerator {
      * @return selected base item
      */
     public BaseItem getTC(Monster monster, HashMap<String, TreasureClass> TCmap, HashMap<String, BaseItem> baseMap) {
-        // find tc, randomly look up a value
-        // if it exists in baseMap, return it, else recurse
         TreasureClass tc = TCmap.get(monster.tc);
         String tc_name = tc.items[rand.nextInt(tc.items.length)];
 
