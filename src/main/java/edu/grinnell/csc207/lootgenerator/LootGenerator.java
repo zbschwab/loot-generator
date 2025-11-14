@@ -70,12 +70,16 @@ public class LootGenerator {
     public static class Item {
         String name;
         BaseItem baseItem;
+        String modcode;
+        int modval;
         Prefix prefix;
         Suffix suffix;
 
         public Item(BaseItem baseItem) {
             this.name = baseItem.name;
             this.baseItem = baseItem;
+            this.modcode = null;
+            this.modval = 0;
             this.prefix = null;
             this.suffix = null;
         }
@@ -244,6 +248,11 @@ public class LootGenerator {
         return b;
     }
 
+    public int modStats(int min, int max) {
+        int mod = rand.nextInt(min, max + 1);
+        return min + mod;
+    }
+
     public void getAffix(Item item) {
         // two 50/50 independent events --> 0.25 chance of each outcome
         int r = rand.nextInt(4);
@@ -252,16 +261,21 @@ public class LootGenerator {
             int pr = rand.nextInt(prefixes.size());
             item.prefix = prefixes.get(pr);
             item.name = item.prefix.name + " " + item.name;
+            item.modcode = item.prefix.mod1code;
+            item.modval = modStats(item.prefix.mod1min, item.prefix.mod1min);
         }
         if (r == 2 || r == 3) {
             int sr = rand.nextInt(suffixes.size());
             item.suffix = suffixes.get(sr);
             item.name += " " + item.suffix.name;
+            item.modcode = item.suffix.mod1code;
+            item.modval = modStats(item.suffix.mod1min, item.suffix.mod1min);
         }
     }
 
     public static void main(String[] args) throws FileNotFoundException {
         LootGenerator gen = new LootGenerator();
+        Scanner s = new Scanner(System.in);
 
         boolean running = true;
         while (running) {
@@ -279,26 +293,20 @@ public class LootGenerator {
 
             System.out.println(modItem.name);
             System.out.println("Defense: " + baseItem.defense);
-        }
+            if (modItem.modval != 0) {
+                System.out.println(modItem.modval + " " + modItem.modcode);
+            }
 
-        // look up monster's TC in TCmap --> base item
-        // look up base item in armor.txt
-        // calculate defense from minac-maxac
-        // randomly pick if item has prefix/suffix
-        // get affix stats
-        // print out monster, item name, base stats, affix stats
-
-        // testing
-
-        Scanner s = new Scanner(System.in);
-        System.out.print("Fight again [y/n]? ");
-        if ("y".equalsIgnoreCase(s.next())) {
-            // regenerate
-        } else if ("n".equalsIgnoreCase(s.next())) {
-            // exit program
-        } else {
             System.out.print("Fight again [y/n]? ");
+            while (!"y".equalsIgnoreCase(s.next())) {
+                if ("n".equalsIgnoreCase(s.next())) {
+                    running = false;
+                } else {
+                    System.out.print("Fight again [y/n]? ");
+                }
+            }
         }
 
+        s.close();
     }
 }
