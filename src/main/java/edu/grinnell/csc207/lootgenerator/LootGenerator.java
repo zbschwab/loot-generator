@@ -25,7 +25,7 @@ public class LootGenerator {
         }
 
         @Override
-        public String toString() {  // TEST
+        public String toString() { // TEST
             return monsterClass + ", " + type + ", " + level + ", " + tc;
         }
     }
@@ -40,12 +40,12 @@ public class LootGenerator {
         }
 
         @Override
-        public String toString() {  // TEST
+        public String toString() { // TEST
             return name + ", " + items[0] + ", " + items[1] + ", " + items[2] + "\n";
         }
     }
 
-    public class Prefix {
+    public static class Prefix {
         String name;
         String mod1code;
         int mod1min;
@@ -59,7 +59,7 @@ public class LootGenerator {
         }
     }
 
-    public class Suffix {
+    public static class Suffix {
         String name;
         String mod1code;
         int mod1min;
@@ -73,7 +73,7 @@ public class LootGenerator {
         }
     }
 
-    public class BaseItem {
+    public static class BaseItem {
         String name;
         int minac;
         int maxac;
@@ -82,6 +82,11 @@ public class LootGenerator {
             this.name = name;
             this.minac = minac;
             this.maxac = maxac;
+        }
+
+        @Override
+        public String toString() { // TEST
+            return name + ", " + minac + ", " + maxac + "\n";
         }
     }
 
@@ -111,13 +116,13 @@ public class LootGenerator {
             Monster m = new Monster(row_data[0], row_data[1], row_data[2], row_data[3]);
             monsters.add(m);
         }
-    
+
         s.close();
-        System.out.println(monsters.toString());  // TEST
+        System.out.println(monsters.toString()); // TEST
         return monsters;
     }
 
-    public static void loadTCs(String filePath) throws FileNotFoundException {
+    public static HashMap<String, TreasureClass> loadTCs(String filePath) throws FileNotFoundException {
         HashMap<String, TreasureClass> TCmap = new HashMap<>();
         Scanner s = new Scanner(new File(filePath)).useDelimiter("\t");
 
@@ -132,16 +137,76 @@ public class LootGenerator {
         }
 
         s.close();
-        System.out.println(TCmap.toString());  // TEST
+        System.out.println(TCmap.toString()); // TEST
+        return TCmap;
+    }
+
+    public static HashMap<String, BaseItem> loadBaseItems(String filePath) throws FileNotFoundException {
+        HashMap<String, BaseItem> itemMap = new HashMap<>();
+        Scanner s = new Scanner(new File(filePath)).useDelimiter("\t");
+
+        while (s.hasNextLine()) {
+            String line = s.nextLine();
+            String[] row_data = line.split("\t");
+
+            BaseItem item = new BaseItem(row_data[0], Integer.parseInt(row_data[1]), Integer.parseInt(row_data[2]));
+            itemMap.put(row_data[0], item);
+        }
+
+        s.close();
+        System.out.println(itemMap.toString()); // TEST
+        return itemMap;
+    }
+
+    public static ArrayList<Prefix> loadPrefixes(String filePath) throws FileNotFoundException {
+        ArrayList<Prefix> prefixes = new ArrayList<>();
+        Scanner s = new Scanner(new File(filePath)).useDelimiter("\t");
+
+        while (s.hasNextLine()) {
+            String line = s.nextLine();
+            String[] row_data = line.split("\t");
+
+            Prefix p = new Prefix(row_data[0], row_data[1], Integer.parseInt(row_data[2]),
+                    Integer.parseInt(row_data[3]));
+            prefixes.add(p);
+        }
+
+        s.close();
+        return prefixes;
+    }
+
+    public static ArrayList<Suffix> loadSuffixes(String filePath) throws FileNotFoundException {
+        ArrayList<Suffix> suffixes = new ArrayList<>();
+        Scanner s = new Scanner(new File(filePath)).useDelimiter("\t");
+
+        while (s.hasNextLine()) {
+            String line = s.nextLine();
+            String[] row_data = line.split("\t");
+
+            Suffix suf = new Suffix(row_data[0], row_data[1], Integer.parseInt(row_data[2]),
+                    Integer.parseInt(row_data[3]));
+            suffixes.add(suf);
+        }
+
+        s.close();
+        return suffixes;
     }
 
     public static void main(String[] args) throws FileNotFoundException {
         System.out.println("This program kills monsters and generates loot!");
-    
+
+        // randomly pick monster
+        // look up monster's TC in TCmap --> base item
+        // look up base item in armor.txt
+        // calculate defense from minac-maxac
+        // randomly pick if item has prefix/suffix
+        // get affix stats
+        // print out monster, item name, base stats, affix stats
 
         // testing
         ArrayList<Monster> monsters = loadMonsters(DATA_SET + "/monstats.txt");
         loadTCs(DATA_SET + "/TreasureClassEx.txt");
+        loadBaseItems(DATA_SET + "/armor.txt");
 
         Scanner s = new Scanner(System.in);
         System.out.print("Fight again [y/n]? ");
@@ -152,6 +217,6 @@ public class LootGenerator {
         } else {
             System.out.print("Fight again [y/n]? ");
         }
-        
+
     }
 }
