@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.Scanner;
 
-import edu.grinnell.csc207.lootgenerator.LootGenerator.TreasureClass;
+// import edu.grinnell.csc207.lootgenerator.LootGenerator.TreasureClass;
 
 public class LootGenerator {
     /** The path to the dataset (either the small or large set). */
@@ -113,7 +113,13 @@ public class LootGenerator {
         }
     }
 
-    // data loading methods
+    /**
+     * load monsters from tab-delimited file
+     * 
+     * @param filePath path string to monstats.txt
+     * @return list of monsters
+     * @throws FileNotFoundException
+     */
     public static ArrayList<Monster> loadMonsters(String filePath) throws FileNotFoundException {
         ArrayList<Monster> monsters = new ArrayList<>();
         Scanner s = new Scanner(new File(filePath)).useDelimiter("\t");
@@ -130,6 +136,13 @@ public class LootGenerator {
         return monsters;
     }
 
+    /**
+     * load treasure classes from tab-delimited file
+     * 
+     * @param filePath path string to TreasureClassEx.txt
+     * @return map of TC name -> TC
+     * @throws FileNotFoundException
+     */
     public static HashMap<String, TreasureClass> loadTCs(String filePath) throws FileNotFoundException {
         HashMap<String, TreasureClass> TCmap = new HashMap<>();
         Scanner s = new Scanner(new File(filePath)).useDelimiter("\t");
@@ -148,6 +161,13 @@ public class LootGenerator {
         return TCmap;
     }
 
+    /**
+     * load monsters from tab-delimited file
+     * 
+     * @param filePath path string to armor.txt
+     * @return map of base item name -> base item
+     * @throws FileNotFoundException
+     */
     public static HashMap<String, BaseItem> loadBaseMap(String filePath) throws FileNotFoundException {
         HashMap<String, BaseItem> itemMap = new HashMap<>();
         Scanner s = new Scanner(new File(filePath)).useDelimiter("\t");
@@ -164,6 +184,13 @@ public class LootGenerator {
         return itemMap;
     }
 
+    /**
+     * load prefixes from tab-delimited file
+     * 
+     * @param filePath path string to MagicPrefixes.txt
+     * @return list of prefixes
+     * @throws FileNotFoundException
+     */
     public static ArrayList<Prefix> loadPrefixes(String filePath) throws FileNotFoundException {
         ArrayList<Prefix> prefixes = new ArrayList<>();
         Scanner s = new Scanner(new File(filePath)).useDelimiter("\t");
@@ -181,6 +208,13 @@ public class LootGenerator {
         return prefixes;
     }
 
+    /**
+     * load suffixes from tab-delimited file
+     * 
+     * @param filePath path string to MagicSuffixes.txt
+     * @return list of suffixes
+     * @throws FileNotFoundException
+     */
     public static ArrayList<Suffix> loadSuffixes(String filePath) throws FileNotFoundException {
         ArrayList<Suffix> suffixes = new ArrayList<>();
         Scanner s = new Scanner(new File(filePath)).useDelimiter("\t");
@@ -204,8 +238,13 @@ public class LootGenerator {
     private ArrayList<Prefix> prefixes;
     private ArrayList<Suffix> suffixes;
 
-    private Random rand = new Random();
+    private final Random rand = new Random();
 
+    /**
+     * load all game data sets
+     * 
+     * @throws FileNotFoundException if any file is missing
+     */
     public LootGenerator() throws FileNotFoundException {
         monsters = loadMonsters(DATA_SET + "/monstats.txt");
         TCmap = loadTCs(DATA_SET + "/TreasureClassEx.txt");
@@ -214,11 +253,18 @@ public class LootGenerator {
         suffixes = loadSuffixes(DATA_SET + "/MagicSuffix.txt");
     }
 
-    // game mechanics methods
     public Monster pickMonster(ArrayList<Monster> monsters) {
         return monsters.get(rand.nextInt(monsters.size()));
     }
 
+    /**
+     * looks up TC associated with monster until base item found
+     * 
+     * @param monster
+     * @param TCmap   treasure class lookup map
+     * @param baseMap base item lookup map
+     * @return selected base item
+     */
     public BaseItem getTC(Monster monster, HashMap<String, TreasureClass> TCmap, HashMap<String, BaseItem> baseMap) {
         // find tc, randomly look up a value
         // if it exists in baseMap, return it, else recurse
@@ -228,6 +274,14 @@ public class LootGenerator {
         return getTCHelper(tc_name, TCmap, baseMap);
     }
 
+    /**
+     * recursively look up treasure classes until base item found
+     * 
+     * @param tc_name initial TC name
+     * @param TCmap   treasure class lookup map
+     * @param baseMap base item lookup map
+     * @return selected base item
+     */
     public BaseItem getTCHelper(String tc_name, HashMap<String, TreasureClass> TCmap,
             HashMap<String, BaseItem> baseMap) {
         if (baseMap.containsKey(tc_name)) {
@@ -239,19 +293,37 @@ public class LootGenerator {
         }
     }
 
+    /**
+     * randomly pick a defense value between base item's min and max
+     * 
+     * @param b base item to calculate defense for
+     * @return modified base item
+     */
     public BaseItem getBaseStats(BaseItem b) {
         int pts = rand.nextInt(b.minac, b.maxac + 1);
         b.defense += pts;
         return b;
     }
 
+    /**
+     * randomly pick a random stat modifier value between min and max
+     * 
+     * @param min
+     * @param max
+     * @return new stat value
+     */
     public int modStats(int min, int max) {
         int mod = rand.nextInt(min, max + 1);
         return min + mod;
     }
 
+    /**
+     * apply random affix. 50% of selecting prefix and suffix
+     * two 50/50 independent events --> 0.25 chance of each outcome
+     * 
+     * @param item item to modify
+     */
     public void getAffix(Item item) {
-        // two 50/50 independent events --> 0.25 chance of each outcome
         int r = rand.nextInt(4);
 
         if (r == 1 || r == 3) {
