@@ -67,6 +67,20 @@ public class LootGenerator {
         }
     }
 
+    public static class Item {
+        String name;
+        BaseItem baseItem;
+        Prefix prefix;
+        Suffix suffix;
+
+        public Item(BaseItem baseItem) {
+            this.name = baseItem.name;
+            this.baseItem = baseItem;
+            this.prefix = null;
+            this.suffix = null;
+        }
+    }
+
     public static class Prefix {
         String name;
         String mod1code;
@@ -213,7 +227,8 @@ public class LootGenerator {
         return getTCHelper(tc_name, TCmap, baseMap);
     }
 
-    public BaseItem getTCHelper(String tc_name, HashMap<String, TreasureClass> TCmap, HashMap<String, BaseItem> baseMap) {
+    public BaseItem getTCHelper(String tc_name, HashMap<String, TreasureClass> TCmap,
+            HashMap<String, BaseItem> baseMap) {
         if (baseMap.containsKey(tc_name)) {
             return baseMap.get(tc_name);
         } else {
@@ -229,17 +244,19 @@ public class LootGenerator {
         return b;
     }
 
-    public void getAffix(BaseItem b) {
+    public void getAffix(Item item) {
+        // two 50/50 independent events --> 0.25 chance of each outcome
         int r = rand.nextInt(4);
 
-        if (r%2 == 0) {
-            return;
-        } else if (r == 1) {
+        if (r == 1 || r == 3) {
             int pr = rand.nextInt(prefixes.size());
-            Prefix p = prefixes.get(pr);
-        } else {
+            item.prefix = prefixes.get(pr);
+            item.name = item.prefix.name + " " + item.name;
+        }
+        if (r == 2 || r == 3) {
             int sr = rand.nextInt(suffixes.size());
-            Suffix s = suffixes.get(sr);
+            item.suffix = suffixes.get(sr);
+            item.name += " " + item.suffix.name;
         }
     }
 
@@ -256,10 +273,12 @@ public class LootGenerator {
 
             BaseItem baseItem = gen.getTC(monster, gen.TCmap, gen.baseMap);
             baseItem = gen.getBaseStats(baseItem);
-            System.out.println(baseItem.name);
+
+            Item modItem = new Item(baseItem);
+            gen.getAffix(modItem);
+
+            System.out.println(modItem.name);
             System.out.println("Defense: " + baseItem.defense);
-
-
         }
 
         // look up monster's TC in TCmap --> base item
